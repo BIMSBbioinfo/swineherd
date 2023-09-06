@@ -1,4 +1,4 @@
-#+title Swineherd
+#+title: Swineherd
 
 The [[https://www.gnu.org/software/shepherd/][GNU Shepherd]] is an elegant service manager looking after a herd of daemons.  It can be extended with the [[https://gnu.org/software/guile][Guile]] programming language.
 
