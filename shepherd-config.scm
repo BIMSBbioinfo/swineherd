@@ -1,0 +1,5 @@
+(use-modules (swineherd)
+             (shepherd service))
+(let ((s swineherd-service))
+  (register-services (list s))
+  (start-service swineherd-service))

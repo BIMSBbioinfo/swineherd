@@ -1,0 +1,14 @@
+*~
+scripts/swineherd
+swineherd/config.scm
+doc/*.info
+.version
+*.log
+*.go
+pre-inst-env
+aclocal.m4
+autom4te.cache/
+config.status
+configure
+Makefile.in
+Makefile

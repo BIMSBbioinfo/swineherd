@@ -1,0 +1,10 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Swineherd
+Upstream-Contact: Ricardo Wurmus <rekado@elephly.net>
+Source: https://gnu.org/software/shepherd
+
+# Sample paragraph, commented out:
+#
+# Files: src/*
+# Copyright: $YEAR $NAME <$CONTACT>
+# License: ...

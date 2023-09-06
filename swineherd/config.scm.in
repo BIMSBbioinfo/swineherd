@@ -1,0 +1,69 @@
+; SPDX-FileCopyrightText: 2023 Ricardo Wurmus <rekado@elephly.net>
+;
+; SPDX-License-Identifier: GPL-3.0-or-later
+
+(define-module (swineherd config)
+  #:use-module (ice-9 match)
+  #:use-module (config)
+  #:use-module (config api)
+  #:export (config
+            %config))
+
+(define config
+  (configuration
+   (name 'swineherd)
+   (synopsis "The root configuration for swineherd")
+   (keywords
+    (list
+     (switch
+      (name 'netns-run-directory)
+      (character #false)
+      (synopsis "Location of the netns directory")
+      (example "/var/run/netns")
+      (default "/var/run/netns"))
+     (switch
+      (name 'socket-file)
+      (character #false)
+      (synopsis "Location of the shepherd socket file")
+      (example "/run/swineherd.sock")
+      (default "/run/swineherd.sock"))
+     (switch
+      (name 'container-root)
+      (character #false)
+      (synopsis "Location of the mounted btrfs root volume")
+      (example "/path/to/container-root")
+      (default
+        ;; Try to find the directory relative to the executable first.
+        ;; This is useful when using "pre-inst-env".
+        (let ((maybe-dir
+               (string-append (getcwd) "/container-root")))
+          (and (getenv "SWINEHERD_UNINSTALLED")
+               (file-exists? maybe-dir)
+               maybe-dir))))
+     (switch
+      (name 'btrfs)
+      (character #false)
+      (synopsis "Command to use for the btrfs command line tool.")
+      (example "/run/current-system/profile/bin/btrfs")
+      (default "@BTRFS@"))
+     (switch
+      (name 'herd)
+      (character #false)
+      (synopsis "Command to use for the herd command line tool.")
+      (example "/run/current-system/profile/bin/herd")
+      (default "@HERD@"))))
+   (copyright '(2023))
+   (author "Ricardo Wurmus")))
+
+;; This is useful for REPL sessions where %config is not initialized
+;; from the command line.
+(define defaults
+  (getopt-config (list "swineherd") config))
+
+(define %config
+  (let ((codex defaults))
+    (match-lambda
+      ((? codex? options)
+       (set! codex options)
+       #t)
+      (key (option-ref codex key)))))
