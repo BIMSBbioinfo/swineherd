@@ -28,7 +28,7 @@ interfaces.
 
 #+begin_src sh
 sudo -E ./pre-inst-env shepherd \
-    -c shepherd-config.scm \
+    -c etc/shepherd-config.scm \
     -s /run/swineherd.sock \
     --insecure \
     --logfile=swineherd.log &
@@ -40,7 +40,7 @@ sudo -E ./pre-inst-env shepherd \
 This builds a container launch script from the operating system configuration file =os.scm= and tells the =swineherd= service to create a new container instance called =test=.  The Shepherd service it creates will be called =swine:test=.
 
 #+begin_src sh
-SCRIPT=$(guix system container os.scm)
+SCRIPT=$(guix system container etc/os.scm)
 sudo -E herd -s /run/swineherd.sock \
      new swineherd test $SCRIPT
 #+end_src
