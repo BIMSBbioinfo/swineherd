@@ -17,6 +17,7 @@ assetsdir = $(datadir)/@PACKAGE@
 SOURCES =							\
   swineherd/config.scm				\
   swineherd/utils.scm				\
+  swineherd/api.scm					\
   swineherd/netlink.scm				\
   swineherd.scm
 
