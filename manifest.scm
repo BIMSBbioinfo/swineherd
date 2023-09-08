@@ -6,6 +6,6 @@
  (list "btrfs-progs"
 
        "shepherd" "guix"
-       "guile" "guile-config" "guile-netlink"
+       "guile" "guile-config" "guile-fibers@1.3" "guile-netlink"
 
        "make" "automake" "autoconf" "pkg-config" "sed"))

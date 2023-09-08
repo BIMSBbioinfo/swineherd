@@ -21,6 +21,10 @@ GUILE_MODULE_AVAILABLE([have_shepherd], [(shepherd service)])
 if test "x$have_shepherd" != "xyes"; then
   AC_MSG_ERROR([Shepherd is missing; please install it.])
 fi
+GUILE_MODULE_AVAILABLE([have_fibers], [(fibers web server)])
+if test "x$have_fibers" != "xyes"; then
+  AC_MSG_ERROR([Guile-Fibers is missing; please install it.])
+fi
 GUILE_MODULE_AVAILABLE([have_config], [(config api)])
 if test "x$have_config" != "xyes"; then
   AC_MSG_ERROR([Guile-Config is missing; please install it.])
