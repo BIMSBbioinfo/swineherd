@@ -2,6 +2,8 @@
 scripts/swineherd
 swineherd/config.scm
 doc/*.info
+doc/.dirstamp
+doc/stamp-vti
 .version
 *.log
 *.go
