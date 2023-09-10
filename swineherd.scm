@@ -165,7 +165,8 @@
                               ((@@ (ip addr) get-addrs)))
                         (@@ (ip addr) addr-addr))))))
                 (lambda _ ""))))))
-    (display address)))
+    (when address
+      (display address))))
 
 (define (action:up running)
   "Connect network for the system container."
