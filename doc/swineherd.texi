@@ -48,6 +48,9 @@ This document describes the Swineherd @value{VERSION}.
 @menu
 * Introduction::                What is this all about?
 * Building::                    Make it.
+* Getting Started::             Preparations and your first container.
+* Command Line Interface::      The simplest way to to use it.
+* HTTP API::                    Control it via HTTP.
 * Acknowledgments::             Thanks!
 * GNU Free Documentation License::  The license of this manual.
 * Concept Index::               Concepts.
@@ -86,6 +89,222 @@ Then run the usual commands to build and test:
 make
 make check
 @end example
+
+@c *********************************************************************
+@node Getting Started
+@chapter Getting Started
+
+Swineherd uses a btrfs volume to create a subvolume for each container.
+Here’s how you can prepare a btrfs root volume that lives in a file.
+
+@example
+truncate --size=1024M disk.img
+mkfs.btrfs -L container-root -R quota disk.img
+mkdir container-root
+sudo mount -o loop,compress=zstd disk.img container-root/
+@end example
+
+Upon launching the swineherd service, a bridge interface is created,
+which is used for all container networking purposes.
+
+You can either launch a separate Shepherd process as root with the
+swineherd configuration file or evaluate the swineherd configuration
+file in an existing Shepherd process.  Shepherd needs root permissions
+because it needs to be able to touch /proc and manipulate network
+interfaces.
+
+@example
+sudo -E ./pre-inst-env shepherd \
+    -c etc/shepherd-config.scm \
+    -s /run/swineherd.sock \
+    --insecure \
+    --logfile=swineherd.log &
+@end example
+
+Head to the next section to see how to launch a new container!
+
+@c *********************************************************************
+@node Command Line Interface
+@chapter Command Line Interface
+
+The swineherd service only has two commands: @command{new} (to add and
+run a new container service) and @command{kill} (to destroy the
+container and remove its service).
+
+Here is how you would use the @command{new} command to create a new
+container:
+
+@example
+SCRIPT=$(guix system container etc/os.scm)
+sudo -E herd -s /run/swineherd.sock \
+     new swineherd test $SCRIPT
+@end example
+
+This registers the new service @code{swine:test}.  Each container
+service implements a set of commands.
+
+@deffn Command pid @var{container}
+Return the process identifier (PID) of the container process.
+@example
+sudo -E herd -s /run/swineherd.sock \
+     pid swine:test
+@end example
+@end deffn
+
+@deffn Command exec @var{container} @var{command}
+Run the given @var{COMMAND} inside the container's namespaces.
+@example
+sudo -E herd -s /run/swineherd.sock \
+     exec swine:test "/bin/ls -la /tmp"
+@end example
+@end deffn
+
+@deffn Command peek @var{container} @var{file} @var{pattern}
+Return the last line in the given @var{file} that matches the regular
+expression in @var{pattern}.
+
+@example
+sudo -E herd -s /run/swineherd.sock \
+     peek swine:test /var/log/messages '.*'
+@end example
+@end deffn
+
+@deffn Command ip @var{container}
+Print the IP address assigned to the client network interface inside the
+container.  Print nothing at all when no IP address has been assigned.
+@end deffn
+
+@deffn Command up @var{container}
+Request an IP address for the client network interface inside the
+container.  The client network interface has a virtual interface on the
+host side that is connected to the @code{swineherd0} bridge interface.
+@end deffn
+
+@deffn Command down @var{container}
+Request that the client network interface inside the container be
+disconnected.
+@end deffn
+
+@deffn Command stats @var{container}
+Print three container usage statistics on a single line: network bytes
+received, network bytes transmitted, and CPU time.  CPU time is computed
+as the sum of @code{utime}, @code{stime}, @code{cutime}, and
+@code{cstime} for all processes in the process tree spawned by the
+container.
+
+@example
+receive:888 transmit:1234 cputime:4567
+@end example
+@end deffn
+
+To destroy the container and its root file system, and remove the
+container-specific service use the @command{kill} command:
+
+@example
+sudo -E herd -s /run/swineherd.sock \
+     kill swineherd test
+@end example
+
+
+@c *********************************************************************
+@node HTTP API
+@chapter HTTP API
+
+@deftypefn {HTTP endpoint} POST /api/container/@var{id}/launch
+Register a new container service, run the container by executing the
+launch script, and map the specified directories in the container's
+@code{mount} namespace.
+
+@table @asis
+@item @code{username}, string
+prefix to add before the given container ID
+@item @code{directory-map}, array
+array of mapping objects containing three fields: ``source'' (a
+string), ``target'' (a string), and ``read-only'' (a boolean).
+@item @code{script}, string
+file name of the run-container script in /gnu/store
+@end table
+@end deftypefn
+
+@deftypefn {HTTP endpoint} DELETE /api/container/@var{id}/destroy
+Same as the @command{kill} command implemented by the @code{swineherd}
+service.  It destroys the indicated container and removes its service.
+
+@table @asis
+@item @code{username}, string
+prefix to add before the given container ID
+@end table
+@end deftypefn
+
+@deftypefn {HTTP endpoint} POST /api/container/@var{id}/exec
+Same as the @command{exec} command above.
+
+@table @asis
+@item @code{username}, string
+prefix to add before the given container ID
+@item @code{command}, string
+command to execute in the container.
+@item @code{arguments}, array
+JSON array of strings, arguments to pass to COMMAND.
+@end table
+@end deftypefn
+
+@deftypefn {HTTP endpoint} PUT /api/container/@var{id}/connect
+Same as the @command{up} command above.  Connects the container's
+network interface.
+
+@table @asis
+@item @code{username}, string
+prefix to add before the given container ID
+@end table
+@end deftypefn
+
+@deftypefn {HTTP endpoint} PUT /api/container/@var{id}/disconnect
+Same as the @command{down} command above.  Disconnects the container's
+network interface.
+
+@table @asis
+@item @code{username}, string
+prefix to add before the given container ID
+@end table
+@end deftypefn
+
+@deftypefn {HTTP endpoint} GET /api/container/@var{id}/pid
+Same as the @command{pid} command above.
+
+@table @asis
+@item @code{username}
+string, prefix to add before the given container ID
+@end table
+@end deftypefn
+
+@deftypefn {HTTP endpoint} GET /api/container/@var{id}/info
+Same as the @command{stats} command above.
+
+@table @asis
+@item @code{username}
+string, prefix to add before the given container ID
+@end table
+@end deftypefn
+
+@deftypefn {HTTP endpoint} GET /api/container/@var{id}/peek
+Same as the @command{peek} command above.
+
+@table @asis
+@item @code{username}, string
+prefix to add before the given container ID
+
+@item @code{file}, string
+absolute name of the file in the container
+
+@item @code{pattern}, string
+regular expression to match against lines in FILE.
+@end table
+@end deftypefn
+
+@deftypefn {HTTP endpoint} GET /api/containers
+Return a list of all managed containers.
+@end deftypefn
 
 
 @c *********************************************************************
