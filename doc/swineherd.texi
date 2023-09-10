@@ -216,7 +216,7 @@ launch script, and map the specified directories in the container's
 @code{mount} namespace.
 
 @table @asis
-@item @code{username}, string
+@item @code{prefix}, string
 prefix to add before the given container ID
 @item @code{directory-map}, array
 array of mapping objects containing three fields: ``source'' (a
@@ -231,7 +231,7 @@ Same as the @command{kill} command implemented by the @code{swineherd}
 service.  It destroys the indicated container and removes its service.
 
 @table @asis
-@item @code{username}, string
+@item @code{prefix}, string
 prefix to add before the given container ID
 @end table
 @end deftypefn
@@ -240,7 +240,7 @@ prefix to add before the given container ID
 Same as the @command{exec} command above.
 
 @table @asis
-@item @code{username}, string
+@item @code{prefix}, string
 prefix to add before the given container ID
 @item @code{command}, string
 command to execute in the container.
@@ -254,7 +254,7 @@ Same as the @command{up} command above.  Connects the container's
 network interface.
 
 @table @asis
-@item @code{username}, string
+@item @code{prefix}, string
 prefix to add before the given container ID
 @end table
 @end deftypefn
@@ -264,7 +264,7 @@ Same as the @command{down} command above.  Disconnects the container's
 network interface.
 
 @table @asis
-@item @code{username}, string
+@item @code{prefix}, string
 prefix to add before the given container ID
 @end table
 @end deftypefn
@@ -273,7 +273,7 @@ prefix to add before the given container ID
 Same as the @command{pid} command above.
 
 @table @asis
-@item @code{username}
+@item @code{prefix}
 string, prefix to add before the given container ID
 @end table
 @end deftypefn
@@ -282,7 +282,7 @@ string, prefix to add before the given container ID
 Same as the @command{stats} command above.
 
 @table @asis
-@item @code{username}
+@item @code{prefix}
 string, prefix to add before the given container ID
 @end table
 @end deftypefn
@@ -291,7 +291,7 @@ string, prefix to add before the given container ID
 Same as the @command{peek} command above.
 
 @table @asis
-@item @code{username}, string
+@item @code{prefix}, string
 prefix to add before the given container ID
 
 @item @code{file}, string

@@ -236,14 +236,14 @@ information from inside the container."
       ;; container.
       (('POST "api" "container" id "launch")
        (let* ((get
-               (read-payload body '("username"
+               (read-payload body '("prefix"
                                     "directory-map"
                                     "script")))
-              (username      (get "username"))
+              (prefix        (get "prefix"))
               (directory-map (get "directory-map"))
               (script        (get "script"))
               (success?
-               (launch (string-append username ":" id)
+               (launch (string-append prefix ":" id)
                        script
                        (filter-map
                         (lambda (mapping)
@@ -257,13 +257,13 @@ information from inside the container."
                         (vector->list directory-map)))))
          (render-json `((success . ,success?)))))
       (('POST "api" "container" id "exec")
-       (let* ((get       (read-payload body '("username" "command" "arguments")))
-              (username  (get "username"))
+       (let* ((get       (read-payload body '("prefix" "command" "arguments")))
+              (prefix    (get "prefix"))
               (command   (get "command")))
          ;; This is potentially dangerous, so we restrict commands to
          ;; a carefully curated list of commands.
          (if (permitted-command? command)
-             (let ((success? (exec (string-append username ":" id)
+             (let ((success? (exec (string-append prefix ":" id)
                                    (cons command
                                          (vector->list (get "arguments"))))))
                (render-json `((success . ,success?))))
@@ -271,18 +271,18 @@ information from inside the container."
                      (&api-request-error
                       (message "command not permitted")))))))
       (('PUT "api" "container" id "connect")
-       (let* ((get      (read-payload body '("username")))
-              (username (get "username"))
-              (success? (up (string-append username ":" id))))
+       (let* ((get      (read-payload body '("prefix")))
+              (prefix   (get "prefix"))
+              (success? (up (string-append prefix ":" id))))
          (render-json `((success . ,success?)))))
       (('PUT "api" "container" id "disconnect")
-       (let* ((get      (read-payload body '("username")))
-              (username (get "username"))
-              (success? (down (string-append username ":" id))))
+       (let* ((get      (read-payload body '("prefix")))
+              (prefix   (get "prefix"))
+              (success? (down (string-append prefix ":" id))))
          (render-json `((success . ,success?)))))
       (('DELETE "api" "container" id "destroy")
-       (let* ((get (read-payload body '("username")))
-              (container-id (string-append (get "username") ":" id)))
+       (let* ((get (read-payload body '("prefix")))
+              (container-id (string-append (get "prefix") ":" id)))
          (or (begin
                (down container-id)      ;ignore failure
                (destroy container-id))
@@ -297,8 +297,8 @@ information from inside the container."
        (render-json
         `((containers . ,(list->vector (list-containers))))))
       (('GET "api" "container" id "pid")
-       (let* ((get (read-payload body '("username")))
-              (container-id (string-append (get "username") ":" id))
+       (let* ((get (read-payload body '("prefix")))
+              (container-id (string-append (get "prefix") ":" id))
               (pid (retry (lambda _ (pid container-id))
                           #:retries 10
                           #:wait (lambda (n) (sleep (1+ 1))))))
@@ -309,8 +309,8 @@ information from inside the container."
          (render-json `((success . ,#true)
                         (pid . ,pid)))))
       (('GET "api" "container" id "info")
-       (let* ((get (read-payload body '("username")))
-              (container-id (string-append (get "username") ":" id))
+       (let* ((get (read-payload body '("prefix")))
+              (container-id (string-append (get "prefix") ":" id))
               (pid (retry (lambda _ (pid container-id))
                           #:retries 10
                           #:wait (lambda (n) (sleep (1+ 1)))))
@@ -328,8 +328,8 @@ information from inside the container."
                         (cputime . ,cputime)
                         (pid . ,pid)))))
       (('GET "api" "container" id "peek")
-       (let* ((get (read-payload body '("username" "file" "pattern")))
-              (container-id (string-append (get "username") ":" id)))
+       (let* ((get (read-payload body '("prefix" "file" "pattern")))
+              (container-id (string-append (get "prefix") ":" id)))
          (render-json `((success . ,#true)
                         (result . ,(peek-file container-id (get "file") (get "pattern")))))))
       (_ (not-found (request-uri request))))))
