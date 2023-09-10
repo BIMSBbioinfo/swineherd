@@ -127,9 +127,15 @@ Head to the next section to see how to launch a new container!
 @node Command Line Interface
 @chapter Command Line Interface
 
-The swineherd service only has two commands: @command{new} (to add and
-run a new container service) and @command{kill} (to destroy the
-container and remove its service).
+The swineherd service only has four commands: @command{new} (to add and
+run a new container service), @command{kill} (to destroy the container
+and remove its service), @command{up} (to create the network bridge),
+and @command{down} (to delete the network bridge).
+
+Upon launch of the @code{swineherd} service the network bridge is
+created with the name @code{swineherd0}.  While container services are
+running it is probably a very bad idea to destroy the bridge interface
+with @command{down}.
 
 Here is how you would use the @command{new} command to create a new
 container:
