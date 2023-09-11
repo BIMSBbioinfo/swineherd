@@ -252,11 +252,11 @@ curl http://localhost:1111/api/container/test/launch \
     --header "accept: application/json" \
     --header "Content-Type: application/json" \
     --data-binary @@- <<EOF
-{
+@{
   "prefix": "rekado",
   "directory-map": [],
   "script": "/gnu/store/@dots{}-run-container"
-}
+@}
 EOF
 @end example
 
@@ -276,10 +276,10 @@ curl http://localhost:1111/api/container/third/destroy \
     -X DELETE \
     --header "accept: application/json" \
     --header "Content-Type: application/json" \
-    --data-binary @- <<EOF
-{
+    --data-binary @@- <<EOF
+@{
   "prefix": "rekado"
-}
+@}
 EOF
 @end example
 @end deftypefn
