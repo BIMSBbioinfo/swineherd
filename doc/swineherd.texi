@@ -246,6 +246,10 @@ string), ``target'' (a string), and ``read-only'' (a boolean).
 file name of the run-container script in /gnu/store
 @end table
 
+Here is how you would launch a new container named @samp{rekado:test}
+(i.e. a container with id @samp{test} and prefix @samp{rekado}) without
+any directory mapping:
+
 @example
 curl http://localhost:1111/api/container/test/launch \
     -X POST \
