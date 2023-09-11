@@ -66,7 +66,7 @@ permissions on the shepherd socket."
           ;; TODO: allow user to pass both prefix commands (such as
           ;; "sudo") and extra arguments to herd.
           (cons* (%config 'herd)
-                 "-s" (%config 'shepherd-socket)
+                 "-s" (%config 'socket-file)
                  action service args))
          (lines (list))
          (proc (lambda (line)
