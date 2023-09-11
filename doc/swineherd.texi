@@ -161,7 +161,7 @@ sudo -E herd -s /run/swineherd.sock \
 Run the given @var{COMMAND} inside the container's namespaces.
 @example
 sudo -E herd -s /run/swineherd.sock \
-     exec swine:test "/bin/ls -la /tmp"
+     exec swine:test /run/current-system/profile/bin/touch /home/touched
 @end example
 @end deffn
 
