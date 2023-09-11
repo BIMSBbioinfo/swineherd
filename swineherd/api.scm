@@ -66,7 +66,7 @@ permissions on the shepherd socket."
           ;; TODO: allow user to pass both prefix commands (such as
           ;; "sudo") and extra arguments to herd.
           (cons* (%config 'herd)
-                 "-s" (%config 'socket-file)
+                 "-s" (%config 'socket-file) "--"
                  action service args))
          (lines (list))
          (proc (lambda (line)
@@ -189,7 +189,7 @@ information from inside the container."
   (and (string-prefix? "/gnu/store" script)
        (or (string-suffix? "-run-container" script)
            (string-suffix? "-run-vm" script))
-       (zero? (herd "swineherd" "new" vm-id script))))
+       (zero? (apply herd "swineherd" "new" vm-id script args))))
 
 ;; Commands that may be triggered via API request at
 ;; /api/container/<id>/exec.
