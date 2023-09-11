@@ -37,9 +37,10 @@
         ;; This is useful when using "pre-inst-env".
         (let ((maybe-dir
                (string-append (getcwd) "/container-root")))
-          (and (getenv "SWINEHERD_UNINSTALLED")
-               (file-exists? maybe-dir)
-               maybe-dir))))
+          (or (and (getenv "SWINEHERD_UNINSTALLED")
+                   (file-exists? maybe-dir)
+                   maybe-dir)
+              "@localstatedir@/lib/swineherd/container-root"))))
      (switch
       (name 'btrfs)
       (character #false)
