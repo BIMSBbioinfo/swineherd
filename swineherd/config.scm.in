@@ -53,6 +53,37 @@
       (synopsis "Command to use for the herd command line tool.")
       (example "/run/current-system/profile/bin/herd")
       (default "@HERD@"))))
+   (subcommands
+    (list
+     (configuration
+      (name 'api-server)
+      (synopsis "Start the admin API server")
+      (description
+       "This command starts an API web server.  It is used to spawn,
+configure, and terminate virtual machines on the same shared host.")
+      (keywords
+       (list
+        (switch
+         (name 'host)
+         (synopsis "Host name on which to listen for connections")
+         (character #\H)
+         (default "localhost"))
+        (switch
+         (name 'port)
+         (synopsis "Port on which to listen for connections")
+         (character #\p)
+         (default 1111)
+         (test integer?)
+         (handler string->number))))
+      ;; All of these are needed because any newly created container
+      ;; service accesses them.  These settings are not "stored" in
+      ;; the swineherd service and are looked up by each service
+      ;; independently.
+      (wanted '((keywords . (herd
+                             btrfs
+                             container-root
+                             socket-file
+                             netns-run-directory)))))))
    (copyright '(2023))
    (author "Ricardo Wurmus")))
 
@@ -64,6 +95,7 @@
 (define %config
   (let ((codex defaults))
     (match-lambda
+      ('guile "@GUILE@")
       ((? codex? options)
        (set! codex options)
        #t)

@@ -25,6 +25,7 @@ SOURCES =							\
 do_subst = $(SED) \
   -e 's,[@]HERD[@],$(HERD),g' \
   -e 's,[@]BTRFS[@],$(BTRFS),g' \
+  -e 's,[@]GUILE[@],$(GUILE),g' \
   -e 's,[@]prefix[@],$(prefix),g' \
   -e 's,[@]localstatedir[@],$(localstatedir),g'
 

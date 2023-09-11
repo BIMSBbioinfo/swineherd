@@ -216,6 +216,21 @@ sudo -E herd -s /run/swineherd.sock \
 @node HTTP API
 @chapter HTTP API
 
+Swineherd comes with an optional HTTP API to launch, manage, and destroy
+Guix System containers.  To enable the API server you need to first
+start the @code{swineherd-http-api} service.
+
+@example
+sudo -E herd -s /run/swineherd.sock \
+    start swineherd-http-api
+@end example
+
+You can pass configuration options as additional arguments after the
+service name, but note that they should exactly match those given to the
+@code{swineherd} service.  By default the API server listens on
+localhost port 1111.  Below we describe the available API endpoints.
+
+@section API endpoints
 @deftypefn {HTTP endpoint} POST /api/container/@var{id}/launch
 Register a new container service, run the container by executing the
 launch script, and map the specified directories in the container's
@@ -230,6 +245,21 @@ string), ``target'' (a string), and ``read-only'' (a boolean).
 @item @code{script}, string
 file name of the run-container script in /gnu/store
 @end table
+
+@example
+curl http://localhost:1111/api/container/test/launch \
+    -X POST \
+    --header "accept: application/json" \
+    --header "Content-Type: application/json" \
+    --data-binary @@- <<EOF
+{
+  "prefix": "rekado",
+  "directory-map": [],
+  "script": "/gnu/store/@dots{}-run-container"
+}
+EOF
+@end example
+
 @end deftypefn
 
 @deftypefn {HTTP endpoint} DELETE /api/container/@var{id}/destroy
@@ -240,6 +270,18 @@ service.  It destroys the indicated container and removes its service.
 @item @code{prefix}, string
 prefix to add before the given container ID
 @end table
+
+@example
+curl http://localhost:1111/api/container/third/destroy \
+    -X DELETE \
+    --header "accept: application/json" \
+    --header "Content-Type: application/json" \
+    --data-binary @- <<EOF
+{
+  "prefix": "rekado"
+}
+EOF
+@end example
 @end deftypefn
 
 @deftypefn {HTTP endpoint} POST /api/container/@var{id}/exec

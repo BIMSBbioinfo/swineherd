@@ -16,10 +16,12 @@
   #:use-module (shepherd service)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-2)
+  #:use-module (swineherd api)
   #:use-module (swineherd config)
   #:use-module (swineherd netlink)
   #:export (guix-system-container
-            swineherd-service))
+            swineherd-service
+            swineherd-api-server-service))
 
 (define (get-pid running)
   (call-with-input-file
@@ -302,6 +304,26 @@ bytes transmitted, and CPU time."
                 "-s" (%config 'socket-file)
                 "unload" "root"
                 (format #false "swine:~a" id)))))))
+
+(define swineherd-api-server-service
+  (service
+   '(swineherd-http-api)
+   #:documentation "Run the Swineherd's HTTP API server"
+   #:start
+   (lambda args
+     ;; Initialize %config
+     (let ((opts (getopt-config-auto
+                  (cons* "swineherd" "api-server" args) config)))
+       (%config opts))
+     (fork+exec-command
+      (list (%config 'guile) "-c"
+            (object->string
+             `(begin
+                (use-modules (swineherd api))
+                (run-swineherd-api-server ,(%config 'host)
+                                          ,(%config 'port)))))))
+   #:stop
+   (make-kill-destructor)))
 
 ;; Local Variables:
 ;; eval: (put 'container-excursion* 'scheme-indent-function 1)
