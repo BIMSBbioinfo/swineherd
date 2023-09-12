@@ -264,6 +264,27 @@ curl http://localhost:1111/api/container/test/launch \
 EOF
 @end example
 
+@dots{}and here is an example of the JSON data with two directory
+mappings:
+
+@example
+@{
+  "prefix": "rekado",
+  "directory-map": [
+    @{
+      "source": "/home/me/tmp",
+      "target": "/wherever/you/want",
+      "read-only": true
+    @},
+    @{
+      "source": "/data/projects/important",
+      "target": "/somewhere/else",
+      "read-only": false
+    @}
+  ],
+  "script": "/gnu/store/@dots{}-run-container"
+@}
+@end example
 @end deftypefn
 
 @deftypefn {HTTP endpoint} DELETE /api/container/@var{id}/destroy
