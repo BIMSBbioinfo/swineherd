@@ -12,7 +12,6 @@ dist-hook:
 
 moddir = $(prefix)/share/guile/site/$(GUILE_EFFECTIVE_VERSION)
 godir=$(libdir)/guile/$(GUILE_EFFECTIVE_VERSION)/site-ccache
-assetsdir = $(datadir)/@PACKAGE@
 
 SOURCES =							\
   swineherd/config.scm				\
@@ -20,6 +19,9 @@ SOURCES =							\
   swineherd/api.scm					\
   swineherd/netlink.scm				\
   swineherd.scm
+
+dist_pkgdata_DATA = \
+  etc/shepherd-config.scm
 
 # Handle substitution of fully-expanded Autoconf variables.
 do_subst = $(SED) \
@@ -37,7 +39,8 @@ swineherd/config.scm: swineherd/config.scm.in Makefile
 
 EXTRA_DIST += \
   swineherd/config.scm.in \
-  LICENSES/GFDL-1.3-no-invariants-or-later.texi doc/version.texi
+  LICENSES/GFDL-1.3-no-invariants-or-later.texi doc/version.texi \
+  $(wildcard LICENSES/*.txt)
 
 info_TEXINFOS = doc/swineherd.texi
 
