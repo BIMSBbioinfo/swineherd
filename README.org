@@ -5,81 +5,9 @@ The [[https://www.gnu.org/software/shepherd/][GNU Shepherd]] is an elegant servi
 This project aims to provide an extension to the Shepherd, retraining
 it as a swineherd, a manager of crude *application containers*.  It does this by providing a Shepherd service =swineherd= that talks to the Shepherd process to create Guix System containers as Shepherd services.
 
-
-* Preparations
-
-Swineherd uses a btrfs volume to create a subvolume for each
-container.  Here’s how you can prepare a btrfs root volume that lives in a file.
-
-#+begin_src sh
-truncate --size=1024M disk.img
-mkfs.btrfs -L container-root -R quota disk.img
-mkdir container-root
-sudo mount -o loop,compress=zstd disk.img container-root/
-#+end_src
-
-Upon launching the swineherd service, a bridge interface is created, which is used for all container networking purposes.
-
-You can either launch a separate Shepherd process as root with the
-swineherd configuration file or evaluate the swineherd configuration
-file in an existing Shepherd process.  Shepherd needs root permissions
-because it needs to be able to touch /proc and manipulate network
-interfaces.
-
-#+begin_src sh
-sudo -E ./pre-inst-env shepherd \
-    -c etc/shepherd-config.scm \
-    -s /run/swineherd.sock \
-    --insecure \
-    --logfile=swineherd.log &
-#+end_src
-
-
-* Launch a container service
-
-This builds a container launch script from the operating system configuration file =os.scm= and tells the =swineherd= service to create a new container instance called =test=.  The Shepherd service it creates will be called =swine:test=.
-
-#+begin_src sh
-SCRIPT=$(guix system container etc/os.scm)
-sudo -E herd -s /run/swineherd.sock \
-     new swineherd test $SCRIPT
-#+end_src
-
-
-* Play with the container
-
-#+begin_src sh
-sudo herd -s /run/swineherd.sock \
-     pid swine:test
-sudo herd -s /run/swineherd.sock \
-     up swine:test
-sudo herd -s /run/swineherd.sock \
-     ip swine:test
-sudo herd -s /run/swineherd.sock \
-     peek swine:test /var/log/messages '.*'
-#+end_src
-
-
-* Destroy it
-
-#+begin_src sh
-sudo -E herd -s /run/swineherd.sock \
-     kill swineherd test
-#+end_src
-
-
-* Implemented container actions
-
-The following actions are implemented:
-
-- pid   [container]
-- exec  [container] [command]
-- peek  [container] [file] [regex pattern]
-- ip    [container]
-- up    [container]
-- down  [container]
-- stats [container]
-
+Swineherd provides an optional HTTP API server to launch, manage, and
+destroy containers through an HTTP client.  See the Info documentation
+in the =doc/= directory for all details.
 
 * License
 
