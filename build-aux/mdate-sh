@@ -28,6 +28,8 @@ scriptversion=2018-03-07.03; # UTC
 # bugs to <bug-automake@gnu.org> or send patches to
 # <automake-patches@gnu.org>.
 
+# SPDX-License-Identifier: GPL-2.0-or-later
+
 if test -n "${ZSH_VERSION+set}" && (emulate sh) >/dev/null 2>&1; then
   emulate sh
   NULLCMD=:

@@ -37,7 +37,7 @@ swineherd/config.scm: swineherd/config.scm.in Makefile
 
 EXTRA_DIST += \
   swineherd/config.scm.in \
-  doc/fdl-1.3.texi doc/version.texi
+  LICENSES/GFDL-1.3-no-invariants-or-later.texi doc/version.texi
 
 info_TEXINFOS = doc/swineherd.texi
 

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 Ricardo Wurmus <rekado@elephly.net>
+#
+# SPDX-License-Identifier: CC0-1.0
+
 GOBJECTS = $(SOURCES:%.scm=%.go)
 
 nobase_mod_DATA = $(SOURCES) $(NOCOMP_SOURCES)

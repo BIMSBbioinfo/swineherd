@@ -3,6 +3,8 @@
 
 scriptversion=2018-03-07.03; # UTC
 
+# SPDX-License-Identifier: GPL-2.0-or-later
+
 # Copyright (C) 1996-2021 Free Software Foundation, Inc.
 # Originally written by Fran,cois Pinard <pinard@iro.umontreal.ca>, 1996.
 

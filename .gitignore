@@ -1,4 +1,9 @@
+# SPDX-FileCopyrightText: 2023 Ricardo Wurmus <rekado@elephly.net>
+#
+# SPDX-License-Identifier: CC0-1.0
+
 *~
+swineherd-*.tar.gz
 scripts/swineherd
 swineherd/config.scm
 doc/*.info
@@ -14,3 +19,5 @@ config.status
 configure
 Makefile.in
 Makefile
+disk.img
+TODO.org
