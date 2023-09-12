@@ -14,11 +14,13 @@
   #:use-module (ip addr)
   #:use-module (ip link)
   #:use-module (shepherd service)
+  #:use-module (shepherd support)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-2)
   #:use-module (swineherd api)
   #:use-module (swineherd config)
   #:use-module (swineherd netlink)
+  #:use-module (swineherd utils)
   #:export (guix-system-container
             swineherd-service
             swineherd-api-server-service))
@@ -286,24 +288,21 @@ bytes transmitted, and CPU time."
     (down swineherd:down)
     (new
      (lambda (running id script . args)
-       (system* (%config 'herd)
-                "-s" (%config 'socket-file)
-                "eval" "root"
-                (object->string
-                 `(begin
-                    (use-modules (swineherd))
-                    (let ((service (guix-system-container
-                                    ,id
-                                    ,script
-                                    ',args)))
-                      (register-services (list service))
-                      (start-service service)))))))
+       (let* ((service (guix-system-container id script args))
+              (name (service-canonical-name service)))
+         (if (lookup-service name)
+             (error "Container with this id already exists:" id)
+             (begin
+               (register-services (list service))
+               (start-service service))))))
     (kill
      (lambda (running id)
-       (system* (%config 'herd)
-                "-s" (%config 'socket-file)
-                "unload" "root"
-                (format #false "swine:~a" id)))))))
+       (let ((service (lookup-service
+                       (string->symbol
+                        (format #false "swine:~a" id)))))
+         (unless service
+           (error "No container service with id" id))
+         (unregister-services (list service))))))))
 
 (define swineherd-api-server-service
   (service
