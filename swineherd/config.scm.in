@@ -42,6 +42,14 @@
                    maybe-dir)
               "@localstatedir@/lib/swineherd/container-root"))))
      (switch
+      (name 'permitted-command-prefix)
+      (character #false)
+      (synopsis "Prefix of commands that may be executed in containers
+through the HTTP API.")
+      (example "/allowed-commands/bin/")
+      (default #false)
+      (test (lambda (value) (or (not value) (string? value)))))
+     (switch
       (name 'btrfs)
       (character #false)
       (synopsis "Command to use for the btrfs command line tool.")

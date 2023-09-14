@@ -313,7 +313,14 @@ EOF
 @end deftypefn
 
 @deftypefn {HTTP endpoint} POST /api/container/@var{id}/exec
-Same as the @command{exec} command above.
+Same as the @command{exec} command above, except that any command to be
+executed must be explicitly permitted in advance.  The only way to
+permit commands at the moment is to launch the API server with
+@option{--permitted-command-prefix=PREFIX}, where @var{PREFIX} is a
+string that the command must be prefixed with.  One way to do this is to
+place a collection of authorized scripts in a well-known sub-directory,
+such as @file{/swine-scripts/bin/} and use that as the value for the
+command prefix.
 
 @table @asis
 @item @code{prefix}, string

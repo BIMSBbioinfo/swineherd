@@ -197,7 +197,8 @@ information from inside the container."
   (list))
 
 (define (permitted-command? command)
-  (or (string-prefix? "/rolv/" command)
+  (or (and=> (%config 'permitted-command-prefix)
+         (lambda (prefix) (string-prefix? prefix command)))
       (member command %permitted-commands)))
 
 (define (controller request body)
