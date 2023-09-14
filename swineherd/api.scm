@@ -217,32 +217,24 @@ information from inside the container."
                             (message . ,(api-internal-error-message c))))))
     (match (cons (request-method request)
                  (request-path-components request))
-      ;; TODO: This is incomplete.  It will launch a system container,
-      ;; but it won't arrange for an independent/extra environment to
-      ;; be prepared.  This means that we can't benefit from caching
-      ;; as much as we'd like.
-      ;;
-      ;; It may be desirable to reuse the same container (without
-      ;; having to recompute it) but with different launch arguments
-      ;; to map additional parts of /gnu/store into the container.
-      ;;
-      ;; As it stands the *caller* needs to ensure that whatever
-      ;; source directory is mentioned in the directory-map argument
-      ;; actually exists.  When swineherd runs on a different machine
-      ;; with a separate /gnu/store this may not be guaranteed.
-      ;;
-      ;; Future versions may accept a "derivations" argument and call
-      ;; the local "guix" command to download the derivations and
-      ;; their output from the other server prior to launching the
-      ;; container.
       (('POST "api" "container" id "launch")
        (let* ((get
                (read-payload body '("prefix"
                                     "directory-map"
-                                    "script")))
+                                    "script"
+                                    "derivations")))
               (prefix        (get "prefix"))
               (directory-map (get "directory-map"))
               (script        (get "script"))
+              ;; Let Guix download/copy all derivations and their
+              ;; outputs.
+              (_outputs
+               (match (vector->list (get "derivations"))
+                 (() #true)
+                 (derivations
+                  (zero? (apply system* (%config 'guix)
+                                "build" "--fallback"
+                                derivations)))))
               (success?
                (launch (string-append prefix ":" id)
                        script

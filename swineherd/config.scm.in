@@ -60,7 +60,13 @@ through the HTTP API.")
       (character #false)
       (synopsis "Command to use for the herd command line tool.")
       (example "/run/current-system/profile/bin/herd")
-      (default "@HERD@"))))
+      (default "@HERD@"))
+     (switch
+      (name 'guix)
+      (character #false)
+      (synopsis "Command to use for the guix command line tool.")
+      (example "/run/current-system/profile/bin/guix")
+      (default "/run/current-system/profile/bin/guix"))))
    (subcommands
     (list
      (configuration
@@ -87,7 +93,8 @@ configure, and terminate virtual machines on the same shared host.")
       ;; service accesses them.  These settings are not "stored" in
       ;; the swineherd service and are looked up by each service
       ;; independently.
-      (wanted '((keywords . (herd
+      (wanted '((keywords . (guix
+                             herd
                              btrfs
                              container-root
                              socket-file

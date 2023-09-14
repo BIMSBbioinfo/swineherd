@@ -245,6 +245,13 @@ prefix to add before the given container ID
 @item @code{directory-map}, array
 array of mapping objects containing three fields: ``source'' (a
 string), ``target'' (a string), and ``read-only'' (a boolean).
+@item @code{derivations}, array
+array of derivation file names (strings).  These derivations will be
+built with Guix before launching the container.  Since Guix can
+substitute derivations and their outputs this ensures that the machine
+running the API server has a complete copy of all requested store items.
+You can ignore this if the API server runs on the same machine as the
+one making the API requests.
 @item @code{script}, string
 file name of the run-container script in /gnu/store
 @end table
@@ -262,6 +269,7 @@ curl http://localhost:1111/api/container/test/launch \
 @{
   "prefix": "rekado",
   "directory-map": [],
+  "derivations": [],
   "script": "/gnu/store/@dots{}-run-container"
 @}
 EOF
@@ -285,6 +293,7 @@ mappings:
       "read-only": false
     @}
   ],
+  "derivations": [],
   "script": "/gnu/store/@dots{}-run-container"
 @}
 @end example
