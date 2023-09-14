@@ -25,6 +25,7 @@ dist_pkgdata_DATA = \
 
 # Handle substitution of fully-expanded Autoconf variables.
 do_subst = $(SED) \
+  -e 's,[@]VERSION[@],$(VERSION),g' \
   -e 's,[@]HERD[@],$(HERD),g' \
   -e 's,[@]BTRFS[@],$(BTRFS),g' \
   -e 's,[@]GUILE[@],$(GUILE),g' \
