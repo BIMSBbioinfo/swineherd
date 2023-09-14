@@ -8,9 +8,26 @@
   #:use-module (config api)
   #:export (config
             %config
-            %version))
+            %version
+            %version-major
+            %version-minor
+            %version-patch))
 
 (define %version "@VERSION@")
+(define %version-parts
+  (map string->number (string-split %version #\.)))
+(define (%version-part part)
+  (match %version-parts
+    ((major minor patch)
+     (match part
+       ('major major)
+       ('minor minor)
+       ('patch patch)
+       (_ #f)))
+    (_ #f)))
+(define %version-major (%version-part 'major))
+(define %version-minor (%version-part 'minor))
+(define %version-patch (%version-part 'patch))
 
 (define config
   (configuration
