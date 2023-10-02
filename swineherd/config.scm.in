@@ -62,14 +62,6 @@
                    maybe-dir)
               "@localstatedir@/lib/swineherd/container-root"))))
      (switch
-      (name 'permitted-command-prefix)
-      (character #false)
-      (synopsis "Prefix of commands that may be executed in containers
-through the HTTP API.")
-      (example "/allowed-commands/bin/")
-      (default #false)
-      (test (lambda (value) (or (not value) (string? value)))))
-     (switch
       (name 'btrfs)
       (character #false)
       (synopsis "Command to use for the btrfs command line tool.")
@@ -108,7 +100,15 @@ configure, and terminate virtual machines on the same shared host.")
          (character #\p)
          (default 1111)
          (test integer?)
-         (handler string->number))))
+         (handler string->number))
+        (switch
+         (name 'permitted-command-prefix)
+         (character #false)
+         (synopsis "Prefix of commands that may be executed in containers
+through the HTTP API.")
+         (example "/allowed-commands/bin/")
+         (default #false)
+         (test (lambda (value) (or (not value) (string? value)))))))
       ;; All of these are needed because any newly created container
       ;; service accesses them.  These settings are not "stored" in
       ;; the swineherd service and are looked up by each service
