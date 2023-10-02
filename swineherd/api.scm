@@ -126,28 +126,34 @@ permissions on the shepherd socket."
              (_ #false))))))
 
 (define (valid-ip? ip)
-  (or (false-if-exception (inet-pton AF_INET ip))
-      (false-if-exception (inet-pton AF_INET6 ip))))
+  (or (and (false-if-exception (inet-pton AF_INET ip)) 4)
+      (and (false-if-exception (inet-pton AF_INET6 ip)) 6)))
 
-(define (ip vm-id)
-  "Return the IP address and the CIDR for the container with the given
-VM-ID."
+(define (ips vm-id)
+  "Return a list of all IP addresses and the CIDR for the container
+with the given VM-ID."
   (call-with-values
       (lambda () (herd (vm-id->service-name vm-id) "ip"))
     (lambda (exit-code lines)
       ;; There could be an error message, or there could be no output at
       ;; all, so we only pass the output on if it looks like an IP.
-      (match lines
-        (((? string? output) . rest)
-         (match (string-split (string-trim-right output) #\/)
+      (filter-map
+       (lambda (line)
+         (match (string-split (string-trim-right line) #\/)
            ((addr)
-            (and (valid-ip? addr)
-                 (values addr #false)))
+            (and=> (valid-ip? addr)
+                   (lambda (type)
+                     `((addr . ,addr)
+                       (cidr . ,#false)
+                       (type . ,type)))))
            ((addr prefix)
-            (and (valid-ip? addr)
-                 (values addr prefix)))
+            (and=> (valid-ip? addr)
+                   (lambda (type)
+                     `((addr . ,addr)
+                       (cidr . ,prefix)
+                       (type . ,type)))))
            (_ #false)))
-        (_ #false)))))
+       (filter string? lines)))))
 
 (define (stats vm-id)
   (call-with-values
@@ -316,7 +322,7 @@ information from inside the container."
          (render-json `((success . ,#true)
                         (id . ,id)
                         (container . ,container-id)
-                        (ip . ,(ip container-id))
+                        (ip . ,(list->vector (ips container-id)))
                         (received . ,received)
                         (transmitted . ,transmitted)
                         (cputime . ,cputime)

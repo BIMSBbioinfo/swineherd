@@ -149,28 +149,28 @@
                        (get-line last-line)))))))))
 
 (define (action:ip running)
-  "Show the IP address of the system container."
+  "Show all IP addresses of the system container."
   (let* ((pid (get-pid running))
-         (address
+         (addresses
           (container-excursion* pid
             (lambda ()
               (catch #true
                 (lambda ()
-                  (let ((name (format #false "ceth-~a" pid)))
-                    (and=>
-                     (find (lambda (link)
-                             (string=? (link-name link) name))
-                           (get-links))
-                     (lambda (link)
-                       (and=>
-                        (find (lambda (addr)
-                                (eq? ((@@ (ip addr) addr-link) addr)
-                                     (link-id link)))
-                              ((@@ (ip addr) get-addrs)))
-                        (@@ (ip addr) addr-addr))))))
-                (lambda _ ""))))))
-    (when address
-      (display address))))
+                  (let* ((name (format #false "ceth-~a" pid))
+                         (links (filter (lambda (link)
+                                          (string=? (link-name link) name))
+                                        (get-links))))
+                    (append-map (lambda (link)
+                                  (map (@@ (ip addr) addr-addr)
+                                       (filter (lambda (addr)
+                                                 (eq? ((@@ (ip addr) addr-link) addr)
+                                                      (link-id link)))
+                                               ((@@ (ip addr) get-addrs)))))
+                                links)))
+                (lambda _ '()))))))
+    (for-each (lambda (address)
+                (display address) (newline))
+              addresses)))
 
 (define (action:up running)
   "Connect network for the system container."
