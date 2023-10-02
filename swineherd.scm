@@ -310,7 +310,7 @@ bytes transmitted, and CPU time."
    #:documentation "Run the Swineherd's HTTP API server"
    #:start
    (lambda args
-     ;; Initialize %config
+     ;; Initialize %config to get at Guile
      (let ((opts (getopt-config-auto
                   (cons* "swineherd" "api-server" args) config)))
        (%config opts))
@@ -318,9 +318,17 @@ bytes transmitted, and CPU time."
       (list (%config 'guile) "-c"
             (object->string
              `(begin
-                (use-modules (swineherd api))
-                (run-swineherd-api-server ,(%config 'host)
-                                          ,(%config 'port)))))))
+                (use-modules (config)
+                             (swineherd api)
+                             (swineherd config))
+                ;; Initialize %config in this new process context
+                (let ((opts (getopt-config-auto
+                             (cons* "swineherd" "api-server"
+                                    (list ,@args))
+                             config)))
+                  (%config opts))
+                (run-swineherd-api-server (%config 'host)
+                                          (%config 'port)))))))
    #:stop
    (make-kill-destructor)))
 
