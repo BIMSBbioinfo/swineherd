@@ -66,19 +66,7 @@
       (character #false)
       (synopsis "Command to use for the btrfs command line tool.")
       (example "/run/current-system/profile/bin/btrfs")
-      (default "@BTRFS@"))
-     (switch
-      (name 'herd)
-      (character #false)
-      (synopsis "Command to use for the herd command line tool.")
-      (example "/run/current-system/profile/bin/herd")
-      (default "@HERD@"))
-     (switch
-      (name 'guix)
-      (character #false)
-      (synopsis "Command to use for the guix command line tool.")
-      (example "/run/current-system/profile/bin/guix")
-      (default "/run/current-system/profile/bin/guix"))))
+      (default "@BTRFS@"))))
    (subcommands
     (list
      (configuration
@@ -108,14 +96,24 @@ configure, and terminate virtual machines on the same shared host.")
 through the HTTP API.")
          (example "/allowed-commands/bin/")
          (default #false)
-         (test (lambda (value) (or (not value) (string? value)))))))
+         (test (lambda (value) (or (not value) (string? value)))))
+        (switch
+         (name 'guix)
+         (character #false)
+         (synopsis "Command to use for the guix command line tool.")
+         (example "/run/current-system/profile/bin/guix")
+         (default "/run/current-system/profile/bin/guix"))
+        (switch
+         (name 'herd)
+         (character #false)
+         (synopsis "Command to use for the herd command line tool.")
+         (example "/run/current-system/profile/bin/herd")
+         (default "@HERD@"))))
       ;; All of these are needed because any newly created container
       ;; service accesses them.  These settings are not "stored" in
       ;; the swineherd service and are looked up by each service
       ;; independently.
-      (wanted '((keywords . (guix
-                             herd
-                             btrfs
+      (wanted '((keywords . (btrfs
                              container-root
                              socket-file
                              netns-run-directory)))))))
