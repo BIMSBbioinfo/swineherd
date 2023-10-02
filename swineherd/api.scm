@@ -228,7 +228,7 @@ information from inside the container."
               (script        (get "script"))
               ;; Let Guix download/copy all derivations and their
               ;; outputs.
-              (_outputs
+              (outputs
                (match (vector->list (get "derivations"))
                  (() #true)
                  (derivations
@@ -236,18 +236,19 @@ information from inside the container."
                                 "build" "--fallback"
                                 derivations)))))
               (success?
-               (launch (string-append prefix ":" id)
-                       script
-                       (filter-map
-                        (lambda (mapping)
-                          (and (file-exists? (assoc-ref mapping "source"))
-                               (let ((verb (if (assoc-ref mapping "read-only")
-                                               "expose" "share")))
-                                 (format #false "--~a=~a=~a"
-                                         verb
-                                         (assoc-ref mapping "source")
-                                         (assoc-ref mapping "target")))))
-                        (vector->list directory-map)))))
+               (and outputs
+                    (launch (string-append prefix ":" id)
+                            script
+                            (filter-map
+                             (lambda (mapping)
+                               (and (file-exists? (assoc-ref mapping "source"))
+                                    (let ((verb (if (assoc-ref mapping "read-only")
+                                                    "expose" "share")))
+                                      (format #false "--~a=~a=~a"
+                                              verb
+                                              (assoc-ref mapping "source")
+                                              (assoc-ref mapping "target")))))
+                             (vector->list directory-map))))))
          (render-json `((success . ,success?)))))
       (('POST "api" "container" id "exec")
        (let* ((get       (read-payload body '("prefix" "command" "arguments")))
