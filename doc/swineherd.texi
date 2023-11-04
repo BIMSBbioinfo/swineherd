@@ -168,6 +168,19 @@ sudo -E herd -s /run/swineherd.sock \
 @end example
 @end deffn
 
+@deffn Command fs @var{container} @var{command}
+Run the given @var{COMMAND} on the container's root directory.  The root
+directory is appended to @var{COMMAND}.  Only commands in the directory
+configured with @var{--permitted-host-command-prefix=PREFIX} will be
+executed.  This is useful for running a backup command from the host
+context.
+
+@example
+sudo -E herd -s /run/swineherd.sock \
+     fs swine:test /opt/swineherd/bin/backup
+@end example
+@end deffn
+
 @deffn Command peek @var{container} @var{file} @var{pattern}
 Return the last line in the given @var{file} that matches the regular
 expression in @var{pattern}.
@@ -330,6 +343,22 @@ string that the command must be prefixed with.  One way to do this is to
 place a collection of authorized scripts in a well-known sub-directory,
 such as @file{/swine-scripts/bin/} and use that as the value for the
 command prefix.
+
+@table @asis
+@item @code{prefix}, string
+prefix to add before the given container ID
+@item @code{command}, string
+command to execute in the container.
+@item @code{arguments}, array
+JSON array of strings, arguments to pass to COMMAND.
+@end table
+@end deftypefn
+
+@deftypefn {HTTP endpoint} POST /api/container/@var{id}/fs
+Same as the @command{fs} command above.  Swineherd will only permit
+those commands that are located in the prefix configured with
+@option{--permitted-host-command-prefix=PREFIX}, where @var{PREFIX} is a
+string that the command must be prefixed with.
 
 @table @asis
 @item @code{prefix}, string

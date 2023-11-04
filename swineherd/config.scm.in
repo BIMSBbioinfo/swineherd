@@ -66,7 +66,15 @@
       (character #false)
       (synopsis "Command to use for the btrfs command line tool.")
       (example "/run/current-system/profile/bin/btrfs")
-      (default "@BTRFS@"))))
+      (default "@BTRFS@"))
+     (switch
+      (name 'permitted-host-command-prefix)
+      (character #false)
+      (synopsis "Prefix of commands that may be executed from the host
+on the containers' root file system.")
+      (example "/allowed-host-commands/bin/")
+      (default #false)
+      (test (lambda (value) (or (not value) (string? value)))))))
    (subcommands
     (list
      (configuration

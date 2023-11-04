@@ -102,6 +102,11 @@
            "subvolume" "delete"
            (format #false "~a/~a" root id)))
 
+(define* (container-file pid #:optional (file "/"))
+  "Return the host-side absolute file name of FILE."
+  (format #false "/proc/~a/root~a"
+          pid file))
+
 
 ;;; Actions
 (define (action:pid running)
@@ -117,12 +122,32 @@
     (container-excursion pid
       (lambda () (apply system* command)))))
 
+(define (action:fs running . command)
+  "Run a COMMAND on the root file system of the container from the
+host.  The container root is appended to COMMAND.  Only executables in
+located in the configured directory may be executed.  Return exit
+code."
+  (let ((prefix (canonicalize-path
+                 (%config 'permitted-host-command-prefix))))
+    (match command
+      ((executable . args)
+       (let ((executable* (canonicalize-path executable)))
+         (unless (string-prefix? (string-append prefix "/")
+                                 executable*)
+           (error "Refusing to execute program outside of permitted directory."
+                  executable* prefix))
+         (let* ((pid (get-pid running))
+                (root-fs (container-file pid)))
+           (apply system* executable*
+                  (append args (list root-fs))))))
+      (_
+       (error "Malformed command:" command)))))
+
 (define (action:peek running file pattern)
   "Display one line of the given file in the container."
   (let* ((pid (get-pid running))
          (rx (make-regexp pattern))
-         (filename (format #false "/proc/~a/root~a"
-                           pid file)))
+         (filename (container-file pid file)))
     (unless (file-exists? filename)
       (error (format #false "File not found: ~a" filename)))
 
@@ -251,6 +276,7 @@ bytes transmitted, and CPU time."
    (actions
     (pid   action:pid)
     (exec  action:exec)
+    (fs    action:fs)
     (peek  action:peek)
     (ip    action:ip)
     (up    action:up)
