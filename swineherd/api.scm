@@ -114,6 +114,9 @@ permissions on the shepherd socket."
 (define (exec vm-id command)
   (zero? (apply herd (vm-id->service-name vm-id) "exec" command)))
 
+(define (fs vm-id command)
+  (zero? (apply herd (vm-id->service-name vm-id) "fs" command)))
+
 (define (peek-file vm-id file pattern)
   (call-with-values
       (lambda () (herd (vm-id->service-name vm-id) "peek" file pattern))
@@ -270,6 +273,16 @@ information from inside the container."
              (raise (condition
                      (&api-request-error
                       (message "command not permitted")))))))
+      (('POST "api" "container" id "fs")
+       (let* ((get       (read-payload body '("prefix" "command" "arguments")))
+              (prefix    (get "prefix"))
+              (command   (get "command")))
+         ;; This is potentially dangerous, but swineherd checks
+         ;; whether the command is permitted.
+         (let ((success? (fs (string-append prefix ":" id)
+                             (cons command
+                                   (vector->list (get "arguments"))))))
+           (render-json `((success . ,success?))))))
       (('PUT "api" "container" id "connect")
        (let* ((get      (read-payload body '("prefix")))
               (prefix   (get "prefix"))
