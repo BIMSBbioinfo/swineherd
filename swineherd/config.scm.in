@@ -123,6 +123,7 @@ through the HTTP API.")
       ;; independently.
       (wanted '((keywords . (btrfs
                              container-root
+                             permitted-host-command-prefix
                              socket-file
                              netns-run-directory)))))))
    (copyright '(2023))
