@@ -26,10 +26,11 @@
             swineherd-api-server-service))
 
 (define (get-pid running)
-  (call-with-input-file
-      (format #false "/proc/~a/task/~a/children"
-              running running)
-    read))
+  (let ((pid (process-id running)))
+    (call-with-input-file
+        (format #false "/proc/~a/task/~a/children"
+                pid pid)
+      read)))
 
 (define (get-tasks pid)
   (map string->number
